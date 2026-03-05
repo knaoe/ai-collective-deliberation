@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M.A.G.I. SYSTEM - Multi-Agent Generative Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F534;</text></svg>">
+</head>
+<body>
+    <!-- Scan line overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Background grid -->
+    <div class="bg-grid"></div>
+
+    <!-- NERV watermark -->
+    <div class="nerv-watermark">
+        <span>NERV</span>
+    </div>
+
+    <!-- Top status bar -->
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <span class="nerv-logo">NERV</span>
+            <span class="separator">|</span>
+            <span class="system-label">God's in his heaven. All's right with the world.</span>
+        </div>
+        <div class="top-bar-center">
+            <div class="alert-indicator" id="alertIndicator">
+                <span class="alert-dot"></span>
+                <span class="alert-text">SYSTEM STANDBY</span>
+            </div>
+        </div>
+        <div class="top-bar-right">
+            <span class="datetime" id="datetime"></span>
+            <span class="separator">|</span>
+            <span class="connection-status" id="connectionStatus">
+                <span class="status-dot offline"></span>
+                OFFLINE
+            </span>
+        </div>
+    </header>
+
+    <!-- Main title -->
+    <section class="title-section">
+        <div class="hex-decoration left">
+            <svg viewBox="0 0 100 100" class="hex-svg">
+                <polygon points="50,3 95,25 95,75 50,97 5,75 5,25" fill="none" stroke="currentColor" stroke-width="1"/>
+                <polygon points="50,15 82,32 82,68 50,85 18,68 18,32" fill="none" stroke="currentColor" stroke-width="0.5"/>
+            </svg>
+        </div>
+        <h1 class="main-title">
+            <span class="title-bracket">[</span>
+            M.A.G.I. SYSTEM
+            <span class="title-bracket">]</span>
+        </h1>
+        <p class="subtitle">Multi-Agent Generative Intelligence</p>
+        <p class="subtitle-jp">- 多層的汎用知能システム -</p>
+        <div class="hex-decoration right">
+            <svg viewBox="0 0 100 100" class="hex-svg">
+                <polygon points="50,3 95,25 95,75 50,97 5,75 5,25" fill="none" stroke="currentColor" stroke-width="1"/>
+                <polygon points="50,15 82,32 82,68 50,85 18,68 18,32" fill="none" stroke="currentColor" stroke-width="0.5"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Pattern alert banner -->
+    <div class="pattern-alert" id="patternAlert">
+        <div class="pattern-alert-inner">
+            <span class="pattern-label">WARNING</span>
+            <span class="pattern-text">PATTERN: BLUE - DELIBERATION IN PROGRESS</span>
+            <span class="pattern-label">WARNING</span>
+        </div>
+    </div>
+
+    <!-- Input section -->
+    <section class="input-section">
+        <div class="input-container">
+            <div class="input-header">
+                <span class="input-label">MAGI INPUT TERMINAL</span>
+                <span class="input-label-jp">諮問入力端末</span>
+            </div>
+            <div class="input-wrapper">
+                <textarea id="questionInput"
+                    placeholder="Enter your question for the MAGI system... / MAGIシステムへの諮問を入力してください..."
+                    rows="3"
+                    maxlength="2000"></textarea>
+                <div class="input-footer">
+                    <span class="char-count"><span id="charCount">0</span> / 2000</span>
+                    <button id="submitBtn" class="submit-btn">
+                        <span class="btn-text">DELIBERATE</span>
+                        <span class="btn-text-jp">合議開始</span>
+                        <span class="btn-icon">&#9654;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Suggestion chips -->
+    <section class="suggestion-section">
+        <div class="suggestion-container">
+            <div class="suggestion-label">
+                <span class="suggestion-label-text">SAMPLE QUERIES</span>
+                <span class="suggestion-label-jp">サンプル諮問</span>
+            </div>
+            <div class="suggestion-chips" id="suggestionChips">
+                <button class="suggestion-chip" data-question="Should humanity colonize Mars?">
+                    <span class="chip-icon">&#9673;</span>
+                    <span class="chip-text">Should humanity colonize Mars?</span>
+                </button>
+                <button class="suggestion-chip" data-question="AIに法的人格を認めるべきか？">
+                    <span class="chip-icon">&#9673;</span>
+                    <span class="chip-text">AIに法的人格を認めるべきか？</span>
+                </button>
+                <button class="suggestion-chip" data-question="リモートワークはオフィスワークよりも優れているか？">
+                    <span class="chip-icon">&#9673;</span>
+                    <span class="chip-text">リモートワークはオフィスワークよりも優れているか？</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Dashboard -->
+    <section class="stats-dashboard-section" id="statsDashboardSection">
+        <div class="stats-dashboard-container">
+            <div class="stats-dashboard-header">
+                <span class="stats-dashboard-label">MAGI DELIBERATION ANALYTICS</span>
+                <span class="stats-dashboard-label-jp">MAGI 審議分析ダッシュボード</span>
+            </div>
+            <div class="stats-dashboard" id="statsDashboard">
+                <!-- Rendered by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- All Deliberations List -->
+    <section class="all-delib-section" id="allDelibSection">
+        <div class="all-delib-container">
+            <div class="all-delib-header">
+                <span class="all-delib-label">ALL 32 DELIBERATIONS</span>
+                <span class="all-delib-label-jp">全32件の審議結果</span>
+            </div>
+            <div class="all-delib-list" id="allDeliberationsList">
+                <!-- Rendered by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo data viewer section -->
+    <section class="demo-section" id="demoSection">
+        <div class="demo-container">
+            <div class="demo-header">
+                <span class="demo-label">ARCHIVED DELIBERATIONS (FULL DETAIL)</span>
+                <span class="demo-label-jp">審議アーカイブ (詳細)</span>
+            </div>
+            <div class="demo-cards" id="demoCards">
+                <button class="demo-card" data-demo="ai_personhood">
+                    <div class="demo-card-title">Should AI be given legal personhood?</div>
+                    <div class="demo-card-meta">
+                        <span class="demo-verdict conditional">CONDITIONAL</span>
+                        <span class="demo-model">GPT-5</span>
+                        <span class="demo-cost">$1.72</span>
+                    </div>
+                </button>
+                <button class="demo-card" data-demo="remote_work">
+                    <div class="demo-card-title">Is remote work better than office work?</div>
+                    <div class="demo-card-meta">
+                        <span class="demo-verdict conditional">CONDITIONAL</span>
+                        <span class="demo-model">GPT-5</span>
+                        <span class="demo-cost">$1.68</span>
+                    </div>
+                </button>
+                <button class="demo-card" data-demo="universal_basic_income">
+                    <div class="demo-card-title">Should we implement universal basic income?</div>
+                    <div class="demo-card-meta">
+                        <span class="demo-verdict conditional">CONDITIONAL</span>
+                        <span class="demo-model">GPT-5</span>
+                        <span class="demo-cost">$1.69</span>
+                    </div>
+                </button>
+                <button class="demo-card" data-demo="mars_colonization">
+                    <div class="demo-card-title">Should humanity colonize Mars?</div>
+                    <div class="demo-card-meta">
+                        <span class="demo-verdict conditional">CONDITIONAL</span>
+                        <span class="demo-model">GPT-5</span>
+                        <span class="demo-cost">$0.43</span>
+                    </div>
+                </button>
+                <button class="demo-card" data-demo="capitalism_climate">
+                    <div class="demo-card-title">Is capitalism compatible with solving climate change?</div>
+                    <div class="demo-card-meta">
+                        <span class="demo-verdict conditional">CONDITIONAL</span>
+                        <span class="demo-model">GPT-5</span>
+                        <span class="demo-cost">$0.56</span>
+                    </div>
+                </button>
+                <button class="demo-card" data-demo="ai_consciousness">
+                    <div class="demo-card-title">Is consciousness possible in AI?</div>
+                    <div class="demo-card-meta">
+                        <span class="demo-verdict conditional">CONDITIONAL</span>
+                        <span class="demo-model">GPT-5</span>
+                        <span class="demo-cost">$0.60</span>
+                    </div>
+                </button>
+                <button class="demo-card" data-demo="social_media_utility">
+                    <div class="demo-card-title">Should social media be regulated as a public utility?</div>
+                    <div class="demo-card-meta">
+                        <span class="demo-verdict conditional">CONDITIONAL</span>
+                        <span class="demo-model">GPT-5</span>
+                        <span class="demo-cost">$0.56</span>
+                    </div>
+                </button>
+                <button class="demo-card" data-demo="lifespan_150">
+                    <div class="demo-card-title">Should we extend human lifespan beyond 150 years?</div>
+                    <div class="demo-card-meta">
+                        <span class="demo-verdict conditional">CONDITIONAL</span>
+                        <span class="demo-model">GPT-5</span>
+                        <span class="demo-cost">$0.60</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Phase indicator -->
+    <section class="phase-section" id="phaseSection">
+        <div class="phase-track">
+            <div class="phase-item" data-phase="thinking" id="phaseThinking">
+                <div class="phase-number">01</div>
+                <div class="phase-name">INDEPENDENT ANALYSIS</div>
+                <div class="phase-name-jp">独立解析</div>
+                <div class="phase-line"></div>
+            </div>
+            <div class="phase-connector">
+                <div class="connector-line"></div>
+                <div class="connector-arrow">&#9654;</div>
+            </div>
+            <div class="phase-item" data-phase="debate" id="phaseDebate">
+                <div class="phase-number">02</div>
+                <div class="phase-name">CROSS DEBATE</div>
+                <div class="phase-name-jp">相互討論</div>
+                <div class="phase-line"></div>
+            </div>
+            <div class="phase-connector">
+                <div class="connector-line"></div>
+                <div class="connector-arrow">&#9654;</div>
+            </div>
+            <div class="phase-item" data-phase="consensus" id="phaseConsensus">
+                <div class="phase-number">03</div>
+                <div class="phase-name">CONSENSUS</div>
+                <div class="phase-name-jp">合議決定</div>
+                <div class="phase-line"></div>
+            </div>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-label" id="progressLabel">0%</div>
+        </div>
+    </section>
+
+    <!-- MAGI Panels -->
+    <section class="magi-panels">
+        <!-- MELCHIOR -->
+        <div class="magi-panel melchior" id="panelMelchior">
+            <div class="panel-header">
+                <div class="panel-id">MAGI-01</div>
+                <div class="panel-status" id="statusMelchior">
+                    <span class="status-indicator standby"></span>
+                    <span class="status-text">STANDBY</span>
+                </div>
+            </div>
+            <div class="panel-title-bar">
+                <h2 class="panel-name">MELCHIOR</h2>
+                <span class="panel-persona">THE SCIENTIST / 科学者</span>
+            </div>
+            <div class="panel-body">
+                <div class="thinking-indicator" id="thinkingMelchior">
+                    <div class="thinking-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="thinking-text">PROCESSING...</span>
+                </div>
+                <div class="panel-content" id="contentMelchior">
+                    <div class="content-placeholder">
+                        Awaiting deliberation input...<br>
+                        <span class="placeholder-jp">諮問入力を待機中...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="vote-display" id="voteMelchior">
+                    <span class="vote-label">VOTE:</span>
+                    <span class="vote-value">---</span>
+                </div>
+                <div class="confidence-display" id="confidenceMelchior">
+                    <span class="confidence-label">CONF:</span>
+                    <span class="confidence-bar"><span class="confidence-fill"></span></span>
+                    <span class="confidence-value">--%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- BALTHASAR -->
+        <div class="magi-panel balthasar" id="panelBalthasar">
+            <div class="panel-header">
+                <div class="panel-id">MAGI-02</div>
+                <div class="panel-status" id="statusBalthasar">
+                    <span class="status-indicator standby"></span>
+                    <span class="status-text">STANDBY</span>
+                </div>
+            </div>
+            <div class="panel-title-bar">
+                <h2 class="panel-name">BALTHASAR</h2>
+                <span class="panel-persona">THE MOTHER / 母親</span>
+            </div>
+            <div class="panel-body">
+                <div class="thinking-indicator" id="thinkingBalthasar">
+                    <div class="thinking-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="thinking-text">PROCESSING...</span>
+                </div>
+                <div class="panel-content" id="contentBalthasar">
+                    <div class="content-placeholder">
+                        Awaiting deliberation input...<br>
+                        <span class="placeholder-jp">諮問入力を待機中...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="vote-display" id="voteBalthasar">
+                    <span class="vote-label">VOTE:</span>
+                    <span class="vote-value">---</span>
+                </div>
+                <div class="confidence-display" id="confidenceBalthasar">
+                    <span class="confidence-label">CONF:</span>
+                    <span class="confidence-bar"><span class="confidence-fill"></span></span>
+                    <span class="confidence-value">--%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASPER -->
+        <div class="magi-panel casper" id="panelCasper">
+            <div class="panel-header">
+                <div class="panel-id">MAGI-03</div>
+                <div class="panel-status" id="statusCasper">
+                    <span class="status-indicator standby"></span>
+                    <span class="status-text">STANDBY</span>
+                </div>
+            </div>
+            <div class="panel-title-bar">
+                <h2 class="panel-name">CASPER</h2>
+                <span class="panel-persona">THE WOMAN / 女</span>
+            </div>
+            <div class="panel-body">
+                <div class="thinking-indicator" id="thinkingCasper">
+                    <div class="thinking-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="thinking-text">PROCESSING...</span>
+                </div>
+                <div class="panel-content" id="contentCasper">
+                    <div class="content-placeholder">
+                        Awaiting deliberation input...<br>
+                        <span class="placeholder-jp">諮問入力を待機中...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="vote-display" id="voteCasper">
+                    <span class="vote-label">VOTE:</span>
+                    <span class="vote-value">---</span>
+                </div>
+                <div class="confidence-display" id="confidenceCasper">
+                    <span class="confidence-label">CONF:</span>
+                    <span class="confidence-bar"><span class="confidence-fill"></span></span>
+                    <span class="confidence-value">--%</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Consensus Section -->
+    <section class="consensus-section" id="consensusSection">
+        <div class="consensus-header">
+            <div class="consensus-hex">
+                <svg viewBox="0 0 120 104" class="consensus-hex-svg">
+                    <polygon points="60,2 115,28 115,76 60,102 5,76 5,28" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span class="consensus-hex-text">MAGI</span>
+            </div>
+            <h2 class="consensus-title">CONSENSUS RESULT / 合議結果</h2>
+            <div class="consensus-hex">
+                <svg viewBox="0 0 120 104" class="consensus-hex-svg">
+                    <polygon points="60,2 115,28 115,76 60,102 5,76 5,28" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span class="consensus-hex-text">MAGI</span>
+            </div>
+        </div>
+        <div class="consensus-body">
+            <div class="consensus-votes" id="consensusVotes">
+                <div class="consensus-vote-item melchior">
+                    <span class="cv-name">MELCHIOR</span>
+                    <span class="cv-vote" id="cvMelchior">---</span>
+                </div>
+                <div class="consensus-vote-item balthasar">
+                    <span class="cv-name">BALTHASAR</span>
+                    <span class="cv-vote" id="cvBalthasar">---</span>
+                </div>
+                <div class="consensus-vote-item casper">
+                    <span class="cv-name">CASPER</span>
+                    <span class="cv-vote" id="cvCasper">---</span>
+                </div>
+            </div>
+            <div class="consensus-decision" id="consensusDecision">
+                <div class="decision-label">FINAL DECISION / 最終決定</div>
+                <div class="decision-text" id="decisionText">
+                    Awaiting MAGI deliberation...
+                </div>
+            </div>
+            <div class="consensus-summary" id="consensusSummary">
+                <div class="summary-content" id="summaryContent"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats footer -->
+    <footer class="stats-footer" id="statsFooter">
+        <div class="stat-item">
+            <span class="stat-label">TOKENS</span>
+            <span class="stat-value" id="statTokens">---</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">COST</span>
+            <span class="stat-value" id="statCost">---</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">DURATION</span>
+            <span class="stat-value" id="statDuration">---</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">MODEL</span>
+            <span class="stat-value" id="statModel">---</span>
+        </div>
+        <div class="stat-item mode-indicator">
+            <span class="stat-label">MODE</span>
+            <span class="stat-value" id="statMode">STANDBY</span>
+        </div>
+    </footer>
+
+    <!-- History panel (slide-out) -->
+    <div class="history-toggle" id="historyToggle">
+        <span class="history-icon">&#9776;</span>
+        <span class="history-label">HISTORY</span>
+    </div>
+    <aside class="history-panel" id="historyPanel">
+        <div class="history-header">
+            <h3>DELIBERATION HISTORY / 合議履歴</h3>
+            <button class="history-close" id="historyClose">&times;</button>
+        </div>
+        <div class="history-list" id="historyList">
+            <div class="history-empty">No deliberation records.</div>
+        </div>
+    </aside>
+
+    <script src="app.js"></script>
+</body>
+</html>
