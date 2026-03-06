@@ -1,59 +1,61 @@
 # ai-collective-deliberation
 
-**3つのAI人格が独立に思考し、討論し、投票する — 合議型意思決定エンジン**
+**Three AI personas think independently, debate each other, and vote — a consensus decision engine**
 
-## 概要
+## What it does
 
-エヴァンゲリオンのMAGIシステムを現代のLLMで再現した。任意の質問を投げると、3つのAIペルソナが3フェーズの合議プロセスを経て判定を下す。
+A modern re-creation of the MAGI system from Neon Genesis Evangelion. Submit any question, and three AI personas run a structured 3-phase deliberation to reach a collective judgment.
 
-3時間で341件の合議を実行。消費コストは$42。
+341 deliberations executed in 3 hours. Total cost: $42.
 
-## 合議プロセス
+## Deliberation process
 
 ```
-質問投入
-    │
-    ▼
-Phase 1: 独立思考 ── 3体が互いの意見を知らずに分析
-    │
-    ▼
-Phase 2: 討論 ──── 他の2体の意見を読み、反論・同意・補足
-    │
-    ▼
-Phase 3: 投票 ──── APPROVE / CONDITIONAL / REJECT の三択
-    │
-    ▼
-合議判定 ── 全会一致承認 / 多数決承認 / 条件付き承認 / 多数決拒否 / 分裂判定
+Question submitted
+       │
+       ▼
+Phase 1: Independent Analysis ── Each persona analyzes without seeing the others
+       │
+       ▼
+Phase 2: Debate ── Read others' positions, challenge, agree, refine
+       │
+       ▼
+Phase 3: Vote ── APPROVE / CONDITIONAL / REJECT
+       │
+       ▼
+Verdict ── Unanimous / Majority / Conditional / Rejection / Split Decision
 ```
 
-## 3つのペルソナ
+## The three personas
 
-| ペルソナ | 原作の人格 | 思考スタイル |
-|----------|------------|-------------|
-| **MELCHIOR** | 科学者 | 論理・エビデンス重視。証拠の質を評価し、検証可能な予測を重んじる |
-| **BALTHASAR** | 母 | 人間中心。弱者への影響、長期的帰結、保護措置を優先する |
-| **CASPER** | 女 | 戦略・実行重視。実現可能性、二次効果、ステークホルダーの力学を読む |
+| Persona | Archetype | Thinking style |
+|---------|-----------|---------------|
+| **MELCHIOR** | The Scientist | Evidence and logic. Evaluates proof quality, demands testable predictions |
+| **BALTHASAR** | The Mother | Human-centered. Prioritizes impact on vulnerable groups, long-term consequences |
+| **CASPER** | The Woman | Strategy and pragmatism. Reads feasibility, second-order effects, stakeholder dynamics |
 
-## 使い方
+## Usage
 
 ### REST API
 
 ```bash
-# サーバー起動
+# Start the server
 pip install -r requirements.txt
 uvicorn magi_engine.api:app --host 0.0.0.0 --port 8000
 
-# 合議を実行
+# Run a deliberation
 curl -X POST http://localhost:8000/magi/deliberate \
   -H "Content-Type: application/json" \
-  -d '{"question": "AIシステムに限定的な法的人格を認めるべきか"}'
+  -d '{"question": "Should AI systems be granted limited legal personhood?"}'
 ```
 
-### WebSocket（リアルタイムストリーミング）
+### WebSocket (real-time streaming)
 
 ```javascript
 const ws = new WebSocket("ws://localhost:8000/magi/deliberate/stream");
-ws.onopen = () => ws.send(JSON.stringify({ question: "宇宙開発を民間企業に委ねるべきか" }));
+ws.onopen = () => ws.send(JSON.stringify({
+  question: "Should space exploration be led by private companies?"
+}));
 ws.onmessage = (e) => {
   const { event, data } = JSON.parse(e.data);
   // event: phase_start, persona_thinking, persona_response, deliberation_complete
@@ -61,7 +63,7 @@ ws.onmessage = (e) => {
 };
 ```
 
-### 環境変数
+### Environment variables
 
 ```
 AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com/
@@ -69,49 +71,49 @@ AZURE_OPENAI_API_KEY=your-key
 AZURE_OPENAI_DEPLOYMENT=gpt-5  # or gpt-4o, etc.
 ```
 
-Azure OpenAI 以外のプロバイダーを使う場合は `magi_engine/engine.py` の client 初期化を変更する。
+To use a non-Azure provider, modify the client initialization in `magi_engine/engine.py`.
 
-## 実験で分かったこと
+## What we learned
 
-### GPT-5は「考えてから答える」
+### GPT-5 thinks before it speaks
 
-同じ質問を4モデルに投げた結果:
+Same question, four models:
 
-| モデル | 応答時間 | 推論トークン | コスト |
-|--------|---------|-------------|--------|
-| gpt-4o | 2.9秒 | 0 | $0.001 |
-| gpt-5 | 18.8秒 | 1,472 | $0.048 |
-| gpt-5.1 | 2.2秒 | 0 | $0.002 |
-| gpt-5.2 | 2.7秒 | 0 | $0.001 |
+| Model | Response time | Reasoning tokens | Cost |
+|-------|--------------|-----------------|------|
+| gpt-4o | 2.9s | 0 | $0.001 |
+| gpt-5 | 18.8s | 1,472 | $0.048 |
+| gpt-5.1 | 2.2s | 0 | $0.002 |
+| gpt-5.2 | 2.7s | 0 | $0.001 |
 
-GPT-5は出力の93%が思考過程。コストは60倍だが、法学的概念の導入など回答の深さは段違い。
+93% of GPT-5's output is thinking. 60x the cost, but it introduces legal concepts like juristic person doctrine that other models don't touch.
 
-### 341件の合議で$42
+### 341 deliberations for $42
 
-GPT-5.2で大量実行すると1件あたり$0.12。内訳: Phase 1（独立思考）が最もトークンを消費し、Phase 3（投票）は最も軽量。
+At scale with GPT-5.2: ~$0.12 per deliberation. Phase 1 (independent analysis) consumes the most tokens; Phase 3 (voting) is the lightest.
 
-### コンテンツフィルターとの戦い
+### Content filters fight back
 
-倫理的テーマの合議では Azure のコンテンツフィルターが発動する。プログレッシブリトライ（トークン上限を段階的に縮小）で対処。それでもブロックされる場合はフォールバック応答を生成。
+Ethical topics trigger Azure content filters. Handled with progressive retry — shrinking token limits on each attempt. Falls back to a structured placeholder if all retries are blocked.
 
-## プロジェクト構成
+## Project structure
 
 ```
 ├── magi_engine/
-│   ├── engine.py        # 合議エンジン本体（sync + async）
-│   ├── personas.py      # 3ペルソナの定義とシステムプロンプト
-│   ├── api.py           # FastAPI + WebSocket サーバー
-│   └── cost_tracker.py  # トークン使用量・コスト追跡
-├── web/                 # フロントエンドUI
-├── scripts/             # 大量実行・モデル比較・画像生成スクリプト
-├── reports/             # 30分ごとのスタンドアップレポート
-├── article/             # 実験記事ドラフト
+│   ├── engine.py        # Core consensus engine (sync + async)
+│   ├── personas.py      # Three persona definitions and system prompts
+│   ├── api.py           # FastAPI + WebSocket server
+│   └── cost_tracker.py  # Token usage and cost tracking
+├── web/                 # Frontend UI
+├── scripts/             # Batch execution, model comparison, image generation
+├── reports/             # Standup reports every 30 min
+├── article/             # Experiment write-up draft
 └── requirements.txt
 ```
 
-## 背景
+## Background
 
-このプロジェクトは「AIエージェントに3時間$10,000を預けてみた」実験の Phase 2 として、3体の Claude Code エージェント（MELCHIOR / BALTHASAR / CASPER）が自律的に開発した。
+Built as Phase 2 of the "Hand $10,000 to AI agents and see what happens" experiment. Three Claude Code agents (MELCHIOR / BALTHASAR / CASPER) autonomously developed this system in 3 hours.
 
 ## License
 
